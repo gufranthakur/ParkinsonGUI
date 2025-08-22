@@ -1,0 +1,146 @@
+/**
+ * UniversalGateway - JavaFX Modular Application
+ * Uses Gradle, Java 21, JavaFX 21, and jlink for packaging.
+ */
+plugins {
+    /** Java plugin adds support for compiling Java code */
+    id 'java'
+
+    /** Application plugin allows us to define main class for 'run' tasks */
+    id 'application'
+
+    /** JavaFX plugin makes it easier to include and configure JavaFX modules */
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+
+    /** Beryx JLink plugin enables jlink and jpackage integration for runtime images and installers */
+    id 'org.beryx.jlink' version '3.1.2'
+}
+
+/** Maven-style group ID (used for package namespace and artifact publishing) */
+group = 'com.parkinsongui'
+
+/** Application version (used in output JAR and installer metadata) */
+version = '1.0.0'
+
+/** Human-readable description of the app (used in jpackage metadata) */
+description = 'UniversalGateway JavaFX-based multi-protocol gateway'
+
+/** Defines where to download libraries from (Maven Central in this case) */
+repositories {
+    mavenCentral()
+}
+
+/**
+ * Sets Java language version using the toolchain API.
+ * This ensures consistent builds across machines.
+ */
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+/**
+ * Ensures UTF-8 encoding for source files during compilation
+ * to avoid issues with non-ASCII characters.
+ */
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+/**
+ * Application configuration
+ * - mainClass: the fully qualified name of the main entry point
+ * - mainModule: name of the Java module (as in module-info.java)
+ */
+application {
+    mainClass = 'com.parkinsongui.App'
+    mainModule = 'com.parkinsongui' // keep this for modular Java
+}
+
+/**
+ * JavaFX module configuration
+ * - version: JavaFX SDK version to use
+ * - modules: list of JavaFX modules used (e.g., javafx.controls, javafx.fxml, etc.)
+ */
+javafx {
+    version = '21'
+    modules = ['javafx.controls', 'javafx.controls', 'javafx.fxml']
+}
+
+/**
+ * External dependencies used in the project.
+ * These will be downloaded from Maven Central automatically.
+ */
+dependencies {
+    implementation 'io.github.mkpaz:atlantafx-base:2.0.1'
+    implementation 'com.github.sarxos:webcam-capture:0.3.12'
+    implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
+}
+
+/**
+ * JLink configuration for creating optimized custom runtime images and native installers.
+ * Includes:
+ * - runtime optimizations
+ * - JVM arguments for runtime
+ * - jpackage installer customization
+ */
+jlink {
+    /** jlink options to reduce image size and improve performance */
+    options = ['--bind-services', '--strip-debug', '--no-header-files', '--no-man-pages']
+
+    /** Automatically include all required JavaFX platform-specific modules */
+    addExtraDependencies("javafx")
+
+    /** Launcher config for runtime image */
+    launcher {
+        name = 'UniversalGateway'
+        jvmArgs         = [
+                '-Xms256m',         // Initial heap size
+                '-Xmx2048m'         // Maximum heap size
+        ]
+    }
+
+
+
+    /** Native installer configuration using jpackage */
+    jpackage {
+        /** Common metadata across platforms */
+        installerOptions = [
+                '--description', project.description,
+                '--copyright', 'Copyright 2025',
+                '--app-version', project.version,
+                '--vendor', 'Gufran Thakur'
+        ] as List<String>
+
+        /** Platform-specific customizations */
+        def os = org.gradle.internal.os.OperatingSystem.current()
+
+        if (os.isWindows()) {
+            imageOptions += ['--icon', 'src/main/resources/com/gradledeploy/assets/images/icon.ico']
+            installerOptions += [
+                    '--win-per-user-install',
+                    '--win-dir-chooser',
+                    '--win-menu',
+                    '--win-shortcut'
+            ]
+        }
+
+        //Add mac ICon
+        if (os.isMacOsX()) {
+            imageOptions += ['--icon', 'src/main/resources/com/universalgateway/assets/images/mac.icns']
+        }
+
+
+        //Since you are in linux , make sure the ison size is accordingly with linux specs
+        if (os.isLinux()) {
+            imageOptions += ['--icon', 'src/main/resources/com/universalgateway/assets/images/main-icon.png']
+            installerOptions += [
+                    '--linux-menu-group', 'Utilities',
+                    '--linux-shortcut',
+                    '--linux-deb-maintainer', 'support@example.com'
+            ]
+            installerType = 'deb'
+        }
+    }
+}
