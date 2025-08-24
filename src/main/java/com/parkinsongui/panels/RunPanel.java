@@ -9,7 +9,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +28,12 @@ public class RunPanel extends VBox {
     private Button executeButton;
     private ProgressBar loadingBar;
     private String currentImagePath;
+
+    // Variables to store Python script results
+    private int parkinsonProbability;
+    private int modelAccuracy;
+    private int inferenceTime;
+    private String fullOutput;
 
     public RunPanel(App app) {
         this.app = app;
@@ -136,11 +144,44 @@ public class RunPanel extends VBox {
                 String testType = spiralRadio.isSelected() ? "spiral" : "wave";
                 double accuracy = accuracySlider.getValue();
 
-                ProcessBuilder pb = new ProcessBuilder("python3", "/scripts/test.py",
-                        currentImagePath, testType, String.valueOf(accuracy));
-                Process process = pb.start();
-                process.waitFor();
+                ProcessBuilder pb = new ProcessBuilder(
+                        "venv/bin/python",
+                        "detection.py",
+                        "data/spiral/testing/healthy/V01HE01.png",
+                        "s"
+                );
 
+                pb.directory(new File("python"));
+                pb.redirectErrorStream(true);
+                Process process = pb.start();
+
+                StringBuilder outputBuilder = new StringBuilder();
+                String[] firstThreeLines = new String[3];
+                int lineCount = 0;
+
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (lineCount < 3) {
+                            firstThreeLines[lineCount] = line;
+                            lineCount++;
+                        } else {
+                            outputBuilder.append(line).append("\n");
+                        }
+                        System.out.println(line);
+                    }
+                }
+
+                // Parse the first three lines
+                if (lineCount >= 3) {
+                    parkinsonProbability = Integer.parseInt(firstThreeLines[0]);
+                    modelAccuracy = Integer.parseInt(firstThreeLines[1]);
+                    inferenceTime = Integer.parseInt(firstThreeLines[2]);
+                    fullOutput = outputBuilder.toString();
+                }
+
+                process.waitFor();
                 return null;
             }
 
@@ -148,7 +189,7 @@ public class RunPanel extends VBox {
             protected void succeeded() {
                 loadingBar.setVisible(false);
                 executeButton.setDisable(false);
-                app.showResultPanel();
+                app.showResultPanel(parkinsonProbability, modelAccuracy, inferenceTime, fullOutput);
             }
 
             @Override
@@ -159,5 +200,22 @@ public class RunPanel extends VBox {
         };
 
         new Thread(task).start();
+    }
+
+    // Getters for the extracted values
+    public int getParkinsonProbability() {
+        return parkinsonProbability;
+    }
+
+    public int getModelAccuracy() {
+        return modelAccuracy;
+    }
+
+    public int getInferenceTime() {
+        return inferenceTime;
+    }
+
+    public String getFullOutput() {
+        return fullOutput;
     }
 }
