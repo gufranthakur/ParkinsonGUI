@@ -12,7 +12,6 @@ public class App extends Application {
     private BorderPane rootPane;
     private HomePanel homePanel;
     private ScanImagePanel scanImagePanel;
-    private UploadImagePanel uploadImagePanel;
     private RunPanel runPanel;
     private ResultPanel resultPanel;
 
@@ -28,7 +27,7 @@ public class App extends Application {
         initializePanels();
         showHomePanel();
 
-        Scene scene = new Scene(rootPane, 800, 600);
+        Scene scene = new Scene(rootPane, 840, 720);
         stage.setTitle("Parkinson Disease Detection");
         stage.setScene(scene);
         stage.setOnCloseRequest(e -> cleanup());
@@ -38,7 +37,6 @@ public class App extends Application {
     private void initializePanels() {
         homePanel = new HomePanel(this);
         scanImagePanel = new ScanImagePanel(this);
-        uploadImagePanel = new UploadImagePanel(this);
         runPanel = new RunPanel(this);
         resultPanel = new ResultPanel(this);
     }
@@ -52,12 +50,14 @@ public class App extends Application {
        // scanImagePanel.startCamera();
     }
 
-    public void showUploadImagePanel() {
-        rootPane.setCenter(uploadImagePanel);
-    }
+    public void showRunPanel(String imagePath) {
+        if (runPanel == null) {
+            runPanel = new RunPanel(this);
+        }
+        runPanel.setSelectedImage(imagePath);
 
-    public void showRunPanel() {
-        rootPane.setCenter(runPanel);
+        primaryStage.getScene().setRoot(runPanel);
+        primaryStage.setTitle("Run Analysis - Parkinson's Detection");
     }
 
     // In your App.java, update the showResultPanel method:

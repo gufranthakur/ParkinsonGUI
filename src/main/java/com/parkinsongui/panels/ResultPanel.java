@@ -100,10 +100,7 @@ public class ResultPanel extends VBox {
         cardsRow2.setAlignment(Pos.CENTER);
         cardsRow2.getChildren().addAll(timeCard, riskIndicator);
 
-        // Charts (only Model Performance now)
-        VBox chartsBox = createCharts();
-
-        dashboardBox.getChildren().addAll(cardsRow, cardsRow2, chartsBox);
+        dashboardBox.getChildren().addAll(cardsRow, cardsRow2);
         return dashboardBox;
     }
 
@@ -181,24 +178,6 @@ public class ResultPanel extends VBox {
 
         indicator.getChildren().addAll(titleLabel, riskLabel, statusBar);
         return indicator;
-    }
-
-    private VBox createCharts() {
-        VBox chartsBox = new VBox(15);
-        chartsBox.setAlignment(Pos.CENTER);
-
-        // Only Model Accuracy Pie Chart (Risk distribution removed)
-        PieChart accuracyChart = new PieChart();
-        accuracyChart.setData(FXCollections.observableArrayList(
-                new PieChart.Data("Accuracy", modelAccuracy),
-                new PieChart.Data("Error", 100 - modelAccuracy)
-        ));
-        accuracyChart.setTitle("Model Performance");
-        accuracyChart.setPrefSize(250, 250);
-        accuracyChart.setLegendVisible(true);
-
-        chartsBox.getChildren().add(accuracyChart);
-        return chartsBox;
     }
 
     private TextArea createDetailsArea() {

@@ -2,6 +2,7 @@ package com.parkinsongui.panels;
 
 import com.parkinsongui.App;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -12,10 +13,6 @@ import javafx.scene.layout.VBox;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
 
 public class RunPanel extends VBox {
     private App app;
@@ -23,13 +20,11 @@ public class RunPanel extends VBox {
     private RadioButton spiralRadio;
     private RadioButton waveRadio;
     private ToggleGroup radioGroup;
-    private Slider accuracySlider;
-    private Label accuracyLabel;
     private Button executeButton;
+    private Button goBackButton;
     private ProgressBar loadingBar;
-    private String currentImagePath;
+    private String selectedImagePath;
 
-    // Variables to store Python script results
     private int parkinsonProbability;
     private int modelAccuracy;
     private int inferenceTime;
@@ -42,6 +37,22 @@ public class RunPanel extends VBox {
         setupEventHandlers();
     }
 
+    public void setSelectedImage(String imagePath) {
+        this.selectedImagePath = imagePath;
+        loadSelectedImage();
+    }
+
+    private void loadSelectedImage() {
+        if (selectedImagePath != null) {
+            try {
+                Image image = new Image(new File(selectedImagePath).toURI().toString(), 400, 300, true, false);
+                imagePreview.setImage(image);
+            } catch (Exception e) {
+                System.err.println("Error loading selected image: " + e.getMessage());
+            }
+        }
+    }
+
     private void initializeComponents() {
         imagePreview = new ImageView();
         imagePreview.setFitWidth(400);
@@ -49,106 +60,136 @@ public class RunPanel extends VBox {
         imagePreview.setPreserveRatio(true);
         imagePreview.setSmooth(false);
         imagePreview.setCache(true);
+        imagePreview.setStyle("-fx-border-color: linear-gradient(to right, #495057, #868e96);" +
+                "-fx-border-width: 2; -fx-border-radius: 10; " +
+                "-fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 8, 0, 0, 3);");
 
         radioGroup = new ToggleGroup();
-        spiralRadio = new RadioButton("Spiral");
-        waveRadio = new RadioButton("Wave");
+        spiralRadio = new RadioButton("Spiral Test");
+        spiralRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
+        waveRadio = new RadioButton("Wave Test");
+        waveRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
         spiralRadio.setToggleGroup(radioGroup);
         waveRadio.setToggleGroup(radioGroup);
         spiralRadio.setSelected(true);
 
-        accuracySlider = new Slider(0, 100, 50);
-        accuracySlider.setShowTickLabels(true);
-        accuracySlider.setShowTickMarks(true);
-        accuracyLabel = new Label("Accuracy Threshold: 50%");
+        String buttonStyle = "-fx-pref-height: 42; -fx-font-size: 14px; -fx-font-weight: bold; " +
+                "-fx-border-radius: 8; -fx-background-radius: 8; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 2);";
 
-        executeButton = new Button("Execute");
-        executeButton.setPrefWidth(150);
+        executeButton = new Button("Execute Analysis");
+        executeButton.setPrefWidth(200);
+        executeButton.setStyle(buttonStyle +
+                "-fx-background-color: linear-gradient(to right, #28a745, #218838); -fx-text-fill: white;");
+
+        goBackButton = new Button("Go Back");
+        goBackButton.setPrefWidth(150);
+        goBackButton.setStyle(buttonStyle +
+                "-fx-background-color: linear-gradient(to right, #6c757d, #495057); -fx-text-fill: white;");
 
         loadingBar = new ProgressBar();
         loadingBar.setVisible(false);
         loadingBar.setPrefWidth(400);
+
+        // Hover effects
+        executeButton.setOnMouseEntered(e -> executeButton.setStyle(buttonStyle +
+                "-fx-background-color: linear-gradient(to right, #34ce57, #28a745); -fx-text-fill: white;"));
+        executeButton.setOnMouseExited(e -> executeButton.setStyle(buttonStyle +
+                "-fx-background-color: linear-gradient(to right, #28a745, #218838); -fx-text-fill: white;"));
+
+        goBackButton.setOnMouseEntered(e -> goBackButton.setStyle(buttonStyle +
+                "-fx-background-color: linear-gradient(to right, #868e96, #596166); -fx-text-fill: white;"));
+        goBackButton.setOnMouseExited(e -> goBackButton.setStyle(buttonStyle +
+                "-fx-background-color: linear-gradient(to right, #6c757d, #495057); -fx-text-fill: white;"));
     }
 
     private void setupLayout() {
         setAlignment(Pos.CENTER);
-        setSpacing(20);
+        setSpacing(30);
 
-        HBox radioBox = new HBox(20);
+        // Card container (same style as ScanImagePanel)
+        VBox card = new VBox(25);
+        card.setAlignment(Pos.CENTER);
+        card.setPadding(new javafx.geometry.Insets(30));
+        card.setStyle(
+                "-fx-background-color: rgba(25, 25, 25, 1);" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-border-color: linear-gradient(to right, #6a11cb, #2575fc);" +
+                        "-fx-border-width: 2;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 15, 0, 0, 5);"
+        );
+
+        // Title
+        Label titleLabel = new Label("Analysis Configuration");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        // Radio buttons container
+        VBox radioContainer = new VBox(15);
+        radioContainer.setAlignment(Pos.CENTER);
+        radioContainer.setPadding(new javafx.geometry.Insets(20));
+        radioContainer.setStyle(
+                "-fx-background-color: rgba(60, 60, 60, 0.8);" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-color: linear-gradient(to right, #43cea2, #185a9d);" +
+                        "-fx-border-width: 1;"
+        );
+
+        Label testTypeLabel = new Label("Select Test Type");
+        testTypeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        HBox radioBox = new HBox(30);
         radioBox.setAlignment(Pos.CENTER);
         radioBox.getChildren().addAll(spiralRadio, waveRadio);
 
-        VBox sliderBox = new VBox(10);
-        sliderBox.setAlignment(Pos.CENTER);
-        sliderBox.getChildren().addAll(accuracySlider, accuracyLabel);
+        radioContainer.getChildren().addAll(testTypeLabel, radioBox);
 
-        getChildren().addAll(
+        // Button box
+        HBox buttonBox = new HBox(15);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.getChildren().addAll(goBackButton, executeButton);
+
+        // Add to card
+        card.getChildren().addAll(
+                titleLabel,
                 imagePreview,
-                radioBox,
-                sliderBox,
-                executeButton,
+                radioContainer,
+                buttonBox,
                 loadingBar
         );
 
-        loadLatestCapturedImage();
+        // Root container padding
+        setPadding(new javafx.geometry.Insets(20, 45, 20, 45));
+        getChildren().add(card);
     }
+
 
     private void setupEventHandlers() {
-        accuracySlider.valueProperty().addListener((obs, oldVal, newVal) ->
-                accuracyLabel.setText("Accuracy Threshold: " + Math.round(newVal.doubleValue()) + "%"));
-
         executeButton.setOnAction(e -> executePythonScript());
-    }
-
-    private void loadLatestCapturedImage() {
-        Thread loadThread = new Thread(() -> {
-            try {
-                File directory = new File(App.IMAGE_STORAGE_PATH);
-                if (directory.exists() && directory.isDirectory()) {
-                    File latestFile = Files.list(Paths.get(App.IMAGE_STORAGE_PATH))
-                            .map(Path::toFile)
-                            .filter(File::isFile)
-                            .filter(f -> f.getName().toLowerCase().matches(".*\\.(png|jpg|jpeg)"))
-                            .max(Comparator.comparingLong(File::lastModified))
-                            .orElse(null);
-
-                    if (latestFile != null) {
-                        currentImagePath = latestFile.getAbsolutePath();
-
-                        javafx.application.Platform.runLater(() -> {
-                            try {
-                                Image image = new Image(latestFile.toURI().toString(), 400, 300, true, false);
-                                imagePreview.setImage(image);
-                            } catch (Exception e) {
-                                System.err.println("Error loading image: " + e.getMessage());
-                            }
-                        });
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Error finding latest image: " + e.getMessage());
-            }
-        });
-
-        loadThread.setDaemon(true);
-        loadThread.start();
+        goBackButton.setOnAction(e -> app.showScanImagePanel());
     }
 
     private void executePythonScript() {
+        if (selectedImagePath == null) {
+            System.err.println("No image selected");
+            return;
+        }
+
         loadingBar.setVisible(true);
         executeButton.setDisable(true);
+        goBackButton.setDisable(true);
 
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                String testType = spiralRadio.isSelected() ? "spiral" : "wave";
-                double accuracy = accuracySlider.getValue();
+                String testType = spiralRadio.isSelected() ? "s" : "w";
 
                 ProcessBuilder pb = new ProcessBuilder(
                         "venv/bin/python",
                         "detection.py",
-                        "data/spiral/testing/healthy/V01HE01.png",
-                        "s"
+                        selectedImagePath,
+                        testType
                 );
 
                 pb.directory(new File("python"));
@@ -173,7 +214,6 @@ public class RunPanel extends VBox {
                     }
                 }
 
-                // Parse the first three lines
                 if (lineCount >= 3) {
                     parkinsonProbability = Integer.parseInt(firstThreeLines[0]);
                     modelAccuracy = Integer.parseInt(firstThreeLines[1]);
@@ -189,6 +229,7 @@ public class RunPanel extends VBox {
             protected void succeeded() {
                 loadingBar.setVisible(false);
                 executeButton.setDisable(false);
+                goBackButton.setDisable(false);
                 app.showResultPanel(parkinsonProbability, modelAccuracy, inferenceTime, fullOutput);
             }
 
@@ -196,26 +237,10 @@ public class RunPanel extends VBox {
             protected void failed() {
                 loadingBar.setVisible(false);
                 executeButton.setDisable(false);
+                goBackButton.setDisable(false);
             }
         };
 
         new Thread(task).start();
-    }
-
-    // Getters for the extracted values
-    public int getParkinsonProbability() {
-        return parkinsonProbability;
-    }
-
-    public int getModelAccuracy() {
-        return modelAccuracy;
-    }
-
-    public int getInferenceTime() {
-        return inferenceTime;
-    }
-
-    public String getFullOutput() {
-        return fullOutput;
     }
 }
