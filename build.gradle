@@ -76,6 +76,9 @@ dependencies {
     implementation 'io.github.mkpaz:atlantafx-base:2.0.1'
     implementation 'com.github.sarxos:webcam-capture:0.3.12'
     implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
+
+    implementation 'com.google.zxing:core:3.5.3'
+    implementation 'com.google.zxing:javase:3.5.3'
 }
 
 /**
@@ -94,7 +97,7 @@ jlink {
 
     /** Launcher config for runtime image */
     launcher {
-        name = 'UniversalGateway'
+        name = 'ParkinsonGUI'
         jvmArgs         = [
                 '-Xms256m',         // Initial heap size
                 '-Xmx2048m'         // Maximum heap size
@@ -134,7 +137,7 @@ jlink {
 
         //Since you are in linux , make sure the ison size is accordingly with linux specs
         if (os.isLinux()) {
-            imageOptions += ['--icon', 'src/main/resources/com/universalgateway/assets/images/main-icon.png']
+            imageOptions += ['--icon', 'src/main/resources/brain.png']
             installerOptions += [
                     '--linux-menu-group', 'Utilities',
                     '--linux-shortcut',

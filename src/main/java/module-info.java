@@ -5,6 +5,8 @@ module com.parkinsongui {
     requires webcam.capture;
     requires javafx.swing;
     requires atlantafx.base;
+    requires jdk.httpserver;
+    requires com.google.zxing;
 
     exports com.parkinsongui;
 }

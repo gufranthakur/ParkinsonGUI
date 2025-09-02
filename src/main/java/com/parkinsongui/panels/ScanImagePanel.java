@@ -13,178 +13,256 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.io.IOException;
 
 public class ScanImagePanel extends ScrollPane {
     private App app;
-    private ImageView cameraFeed;
-    private Button openCheeseButton;
-    private Button stopCheeseButton;
+    private Button scanFromPhoneButton;
     private Button selectImageButton;
     private Button goBackButton;
-    private Label statusLabel;
-    private Process cheeseProcess;
     private String picturesDirectory;
 
     public ScanImagePanel(App app) {
         this.app = app;
         this.picturesDirectory = System.getProperty("user.home") + "/Pictures";
-        initializeComponents();
         setupLayout();
         setupEventHandlers();
-    }
-
-    private void initializeComponents() {
-        cameraFeed = new ImageView();
-        cameraFeed.setFitWidth(520);
-        cameraFeed.setFitHeight(280);
-        cameraFeed.setPreserveRatio(true);
-
-        statusLabel = new Label("Click 'Open Cheese' to capture an image");
-        statusLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #adb5bd; -fx-font-weight: 600;");
-
-        // Modern button style
-        String baseButtonStyle = """
-            -fx-pref-width: 180;
-            -fx-pref-height: 45;
-            -fx-font-size: 14px;
-            -fx-font-weight: 600;
-            -fx-background-radius: 12;
-            -fx-text-fill: #f1f3f5;
-            -fx-background-color: #2a2d31;
-            -fx-border-color: linear-gradient(to right, #4dabf7, #228be6);
-            -fx-border-width: 1.5;
-            -fx-border-radius: 12;
-            -fx-cursor: hand;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 3);
-        """;
-
-        openCheeseButton = new Button("Open Cheese Camera");
-        stopCheeseButton = new Button("Stop Cheese");
-        selectImageButton = new Button("Select Image");
-        goBackButton = new Button("Go Back");
-
-        openCheeseButton.setStyle(baseButtonStyle);
-        stopCheeseButton.setStyle(baseButtonStyle + "-fx-border-color: linear-gradient(to right, #fa5252, #e03131);");
-        selectImageButton.setStyle(baseButtonStyle + "-fx-border-color: linear-gradient(to right, #51cf66, #2f9e44);");
-        goBackButton.setStyle(baseButtonStyle + "-fx-border-color: linear-gradient(to right, #868e96, #495057);");
-
-        stopCheeseButton.setDisable(true);
-
-        // Hover animations (color change only)
-        addHoverEffect(openCheeseButton, "#3a3f44");
-        addHoverEffect(stopCheeseButton, "#3a3f44");
-        addHoverEffect(selectImageButton, "#3a3f44");
-        addHoverEffect(goBackButton, "#3a3f44");
     }
 
     private void setupLayout() {
         VBox mainContent = new VBox();
         mainContent.setAlignment(Pos.CENTER);
-        mainContent.setSpacing(25);
-        mainContent.setPadding(new Insets(20, 45, 20, 45));
+        mainContent.setSpacing(30);
+        mainContent.setPadding(new Insets(30));
+        mainContent.setStyle("-fx-background-color: #1e1e1e;");
 
-        // Card wrapper
-        VBox card = new VBox(25);
-        card.setAlignment(Pos.CENTER);
-        card.setPadding(new Insets(35));
-        card.setStyle("""
-            -fx-background-color: rgba(25,25,25,1);
-            -fx-background-radius: 18;
-            -fx-border-radius: 18;
-            -fx-border-color: linear-gradient(to right, #4dabf7, #228be6);
-            -fx-border-width: 1.5;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 18, 0.2, 0, 8);
-        """);
+        // Header section
+        VBox headerBox = createHeaderSection();
 
-        // Header
-        Label titleLabel = new Label("Image Capture & Selection");
-        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #f8f9fa;");
+        // Cards container
+        HBox cardsContainer = createCardsSection();
 
-        // Camera container
-        VBox imageContainer = new VBox(15, cameraFeed, statusLabel);
-        imageContainer.setAlignment(Pos.CENTER);
-        imageContainer.setStyle("""
-            -fx-background-color: rgba(255,255,255,0.03);
-            -fx-background-radius: 12;
-            -fx-border-color: #495057;
-            -fx-border-radius: 12;
-            -fx-border-width: 1;
-            -fx-padding: 20;
-        """);
+        // Back button section
+        VBox backButtonSection = createBackButtonSection();
 
-        // Buttons
-        HBox cheeseControlBox = new HBox(15, openCheeseButton, stopCheeseButton);
-        cheeseControlBox.setAlignment(Pos.CENTER);
-
-        VBox buttonContainer = new VBox(15, cheeseControlBox, selectImageButton, goBackButton);
-        buttonContainer.setAlignment(Pos.CENTER);
-
-        card.getChildren().addAll(titleLabel, imageContainer, buttonContainer);
-        mainContent.getChildren().add(card);
+        mainContent.getChildren().addAll(headerBox, cardsContainer, backButtonSection);
 
         // ScrollPane config
         setContent(mainContent);
         setFitToWidth(true);
         setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
         setHbarPolicy(ScrollBarPolicy.NEVER);
-        setStyle("-fx-background-color: transparent;");
+        setStyle("-fx-background-color: #1e1e1e;");
+    }
+
+    private VBox createHeaderSection() {
+        VBox headerBox = new VBox(8);
+        headerBox.setAlignment(Pos.CENTER);
+        headerBox.setPadding(new Insets(0, 0, 20, 0));
+
+        Label titleLabel = new Label("Select Capture Method");
+        titleLabel.setStyle("""
+            -fx-font-size: 28px; 
+            -fx-font-weight: 700; 
+            -fx-text-fill: #f8f9fa;
+            """);
+
+        Label subtitleLabel = new Label("Choose how you'd like to capture or select your image");
+        subtitleLabel.setStyle("""
+            -fx-font-size: 15px; 
+            -fx-text-fill: #adb5bd;
+            """);
+
+        headerBox.getChildren().addAll(titleLabel, subtitleLabel);
+        return headerBox;
+    }
+
+    private HBox createCardsSection() {
+        HBox cardsContainer = new HBox(40);
+        cardsContainer.setAlignment(Pos.CENTER);
+        cardsContainer.setPadding(new Insets(20, 0, 20, 0));
+
+        // Card 1: Scan from Phone
+        VBox phoneCard = createCard(
+                "Scan from Phone",
+                "/qr.png", // You'll need to add this icon
+                "Use your mobile phone camera to capture images remotely. Generate a QR code and scan it with your phone to take photos wirelessly.",
+                "Start Phone Scan",
+                "#9775fa", "#7950f2",
+                e -> scanFromPhone()
+        );
+
+        // Card 2: Upload Image
+        VBox uploadCard = createCard(
+                "Upload Image",
+                "/upload.png", // You'll need to add this icon
+                "Select an existing image file from your computer. Browse through your local files and choose a previously captured image for analysis.",
+                "Browse Files",
+                "#51cf66", "#2f9e44",
+                e -> selectImage()
+        );
+
+        cardsContainer.getChildren().addAll(phoneCard, uploadCard);
+        return cardsContainer;
+    }
+
+    private VBox createCard(String title, String iconPath, String description,
+                            String buttonText, String gradientStart, String gradientEnd,
+                            javafx.event.EventHandler<javafx.event.ActionEvent> buttonAction) {
+
+        VBox card = new VBox(20);
+        card.setAlignment(Pos.CENTER);
+        card.setPrefWidth(320);
+        card.setPrefHeight(400);
+        card.setPadding(new Insets(30));
+        card.setStyle(String.format("""
+            -fx-background-color: rgba(42, 45, 49, 0.9);
+            -fx-background-radius: 18;
+            -fx-border-radius: 18;
+            -fx-border-width: 2;
+            -fx-border-color: linear-gradient(to right, %s, %s);
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 20, 0, 0, 8);
+            """, gradientStart, gradientEnd));
+
+        // Add hover effect
+        card.setOnMouseEntered(e -> {
+            card.setStyle(card.getStyle().replace("rgba(42, 45, 49, 0.9)", "rgba(52, 55, 59, 0.95)"));
+        });
+        card.setOnMouseExited(e -> {
+            card.setStyle(card.getStyle().replace("rgba(52, 55, 59, 0.95)", "rgba(42, 45, 49, 0.9)"));
+        });
+
+        // Card title
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("""
+            -fx-font-size: 20px;
+            -fx-font-weight: 700;
+            -fx-text-fill: #f8f9fa;
+            -fx-text-alignment: center;
+            """);
+
+        // Icon
+        ImageView iconView = new ImageView();
+        try {
+            Image icon = new Image(getClass().getResourceAsStream(iconPath));
+            iconView.setImage(icon);
+        } catch (Exception ex) {
+            // Fallback to a colored rectangle if icon not found
+            iconView = createFallbackIcon(gradientStart, gradientEnd);
+        }
+        iconView.setFitWidth(100);
+        iconView.setFitHeight(100);
+        iconView.setPreserveRatio(true);
+        iconView.setSmooth(true);
+        iconView.setStyle("""
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);
+            """);
+
+        // Description
+        Label descLabel = new Label(description);
+        descLabel.setStyle("""
+            -fx-font-size: 13px;
+            -fx-text-fill: #adb5bd;
+            -fx-text-alignment: center;
+            -fx-wrap-text: true;
+            """);
+        descLabel.setMaxWidth(260);
+
+        // Button
+        Button cardButton = new Button(buttonText);
+        cardButton.setOnAction(buttonAction);
+
+        String buttonStyle = String.format("""
+            -fx-pref-width: 200;
+            -fx-pref-height: 40;
+            -fx-font-size: 14px;
+            -fx-font-weight: 600;
+            -fx-background-radius: 12;
+            -fx-border-radius: 12;
+            -fx-background-color: #2a2d31;
+            -fx-border-width: 2;
+            -fx-border-color: linear-gradient(to right, %s, %s);
+            -fx-text-fill: #f1f3f5;
+            -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 8, 0, 0, 3);
+            """, gradientStart, gradientEnd);
+
+        cardButton.setStyle(buttonStyle);
+
+        // Button hover effects
+        cardButton.setOnMouseEntered(e ->
+                cardButton.setStyle(buttonStyle + "-fx-background-color: linear-gradient(to right, #36404a, #2f343a);"));
+        cardButton.setOnMouseExited(e ->
+                cardButton.setStyle(buttonStyle));
+
+        card.getChildren().addAll(titleLabel, iconView, descLabel, cardButton);
+        return card;
+    }
+
+    private ImageView createFallbackIcon(String gradientStart, String gradientEnd) {
+        // Create a simple colored rectangle as fallback
+        VBox fallbackBox = new VBox();
+        fallbackBox.setPrefSize(100, 100);
+        fallbackBox.setStyle(String.format("""
+            -fx-background-color: linear-gradient(to bottom right, %s, %s);
+            -fx-background-radius: 12;
+            -fx-border-radius: 12;
+            """, gradientStart, gradientEnd));
+
+        // This is a simple fallback - ideally you'd want proper icons
+        ImageView fallbackView = new ImageView();
+        fallbackView.setFitWidth(100);
+        fallbackView.setFitHeight(100);
+        return fallbackView;
+    }
+
+    private VBox createBackButtonSection() {
+        VBox backSection = new VBox();
+        backSection.setAlignment(Pos.CENTER);
+        backSection.setPadding(new Insets(20, 0, 0, 0));
+
+        goBackButton = new Button("← Back to Home");
+
+        String backButtonStyle = """
+            -fx-pref-width: 200;
+            -fx-pref-height: 40;
+            -fx-font-size: 14px;
+            -fx-font-weight: 600;
+            -fx-background-radius: 12;
+            -fx-border-radius: 12;
+            -fx-background-color: #2a2d31;
+            -fx-border-width: 2;
+            -fx-border-color: linear-gradient(to right, #868e96, #495057);
+            -fx-text-fill: #f1f3f5;
+            -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 3);
+            """;
+
+        goBackButton.setStyle(backButtonStyle);
+
+        // Hover effect for back button
+        goBackButton.setOnMouseEntered(e ->
+                goBackButton.setStyle(backButtonStyle + "-fx-background-color: linear-gradient(to right, #36404a, #2f343a);"));
+        goBackButton.setOnMouseExited(e ->
+                goBackButton.setStyle(backButtonStyle));
+
+        backSection.getChildren().add(goBackButton);
+        return backSection;
     }
 
     private void setupEventHandlers() {
-        openCheeseButton.setOnAction(e -> openCheese());
-        stopCheeseButton.setOnAction(e -> stopCheese());
-        selectImageButton.setOnAction(e -> selectImage());
-        goBackButton.setOnAction(e -> {
-            stopCheese();
-            app.showHomePanel();
-        });
+        goBackButton.setOnAction(e -> app.showHomePanel());
     }
 
-    private void addHoverEffect(Button button, String hoverBg) {
-        button.setOnMouseEntered(e -> button.setStyle(button.getStyle() + "-fx-background-color: " + hoverBg + ";"));
-        button.setOnMouseExited(e -> button.setStyle(button.getStyle().replace("-fx-background-color: " + hoverBg + ";", "")));
-    }
-
-    private void openCheese() {
-        try {
-            ProcessBuilder pb = new ProcessBuilder("cheese");
-            cheeseProcess = pb.start();
-
-            openCheeseButton.setDisable(true);
-            stopCheeseButton.setDisable(false);
-            statusLabel.setText("Cheese camera opened. Take a photo and click 'Select Image'");
-            statusLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #51cf66; -fx-font-weight: 600;");
-
-        } catch (IOException e) {
-            statusLabel.setText("Failed to open Cheese. Please install: sudo apt install cheese");
-            statusLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #fa5252; -fx-font-weight: 600;");
-        }
-    }
-
-    private void stopCheese() {
-        if (cheeseProcess != null && cheeseProcess.isAlive()) {
-            cheeseProcess.destroyForcibly();
-            cheeseProcess = null;
-        }
-
-        try {
-            ProcessBuilder pb = new ProcessBuilder("pkill", "cheese");
-            pb.start().waitFor();
-        } catch (Exception ignored) {}
-
-        openCheeseButton.setDisable(false);
-        stopCheeseButton.setDisable(true);
-        statusLabel.setText("Cheese camera stopped");
-        statusLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #adb5bd; -fx-font-weight: 600;");
+    private void scanFromPhone() {
+        app.showScanFromPhonePanel();
     }
 
     private void selectImage() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Captured Image");
+        fileChooser.setTitle("Select Image File");
         fileChooser.setInitialDirectory(new File(picturesDirectory));
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif")
         );
 
         File selectedFile = fileChooser.showOpenDialog(app.getPrimaryStage());
@@ -194,23 +272,14 @@ public class ScanImagePanel extends ScrollPane {
     }
 
     private void processSelectedImage(File selectedFile) {
-        statusLabel.setText("Processing image...");
-        statusLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #ffd43b; -fx-font-weight: 600;");
-
         Thread processThread = new Thread(() -> {
             javafx.application.Platform.runLater(() -> {
                 try {
-                    Image image = new Image(selectedFile.toURI().toString());
-                    cameraFeed.setImage(image);
-                    statusLabel.setText("Image selected successfully");
-                    statusLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #51cf66; -fx-font-weight: 600;");
-
-                    stopCheese();
+                    // Directly navigate to run panel with selected image
                     app.showRunPanel(selectedFile.getAbsolutePath());
-
                 } catch (Exception e) {
-                    statusLabel.setText("Failed to display image: " + e.getMessage());
-                    statusLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #fa5252; -fx-font-weight: 600;");
+                    System.err.println("Failed to process image: " + e.getMessage());
+                    e.printStackTrace();
                 }
             });
         });

@@ -39,17 +39,23 @@ public class RunPanel extends VBox {
 
     public void setSelectedImage(String imagePath) {
         this.selectedImagePath = imagePath;
+        System.out.println("RunPanel received image path: " + imagePath); // Debug line
         loadSelectedImage();
     }
 
     private void loadSelectedImage() {
         if (selectedImagePath != null) {
             try {
-                Image image = new Image(new File(selectedImagePath).toURI().toString(), 400, 300, true, false);
+                File imageFile = new File(selectedImagePath);
+                System.out.println("Loading image - File exists: " + imageFile.exists() + ", Size: " + imageFile.length()); // Debug
+                Image image = new Image(imageFile.toURI().toString(), 400, 300, true, false);
                 imagePreview.setImage(image);
             } catch (Exception e) {
                 System.err.println("Error loading selected image: " + e.getMessage());
+                e.printStackTrace();
             }
+        } else {
+            System.out.println("selectedImagePath is null"); // Debug
         }
     }
 

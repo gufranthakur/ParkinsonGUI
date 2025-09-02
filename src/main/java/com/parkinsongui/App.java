@@ -4,6 +4,7 @@ import atlantafx.base.theme.CupertinoDark;
 import com.parkinsongui.panels.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -12,10 +13,12 @@ public class App extends Application {
     private BorderPane rootPane;
     private HomePanel homePanel;
     private ScanImagePanel scanImagePanel;
+    private ScanFromPhonePanel phonePanel;
     private RunPanel runPanel;
     private ResultPanel resultPanel;
 
     public static final String IMAGE_STORAGE_PATH = "captured_images/";
+    private Image capturedImage;
 
     @Override
     public void start(Stage stage) {
@@ -37,6 +40,7 @@ public class App extends Application {
     private void initializePanels() {
         homePanel = new HomePanel(this);
         scanImagePanel = new ScanImagePanel(this);
+        phonePanel = new ScanFromPhonePanel(this);
         runPanel = new RunPanel(this);
         resultPanel = new ResultPanel(this);
     }
@@ -48,6 +52,10 @@ public class App extends Application {
     public void showScanImagePanel() {
         rootPane.setCenter(scanImagePanel);
        // scanImagePanel.startCamera();
+    }
+
+    public void showScanFromPhonePanel() {
+        rootPane.setCenter(phonePanel);
     }
 
     public void showRunPanel(String imagePath) {
@@ -69,6 +77,14 @@ public class App extends Application {
 
         primaryStage.getScene().setRoot(resultPanel);
         primaryStage.setTitle("Analysis Results - Parkinson's Detection");
+    }
+
+    public Image getCapturedImage() {
+        return capturedImage;
+    }
+
+    public void setCapturedImage(Image image) {
+        this.capturedImage = image;
     }
 
     public Stage getPrimaryStage() {
