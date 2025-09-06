@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 public class RunPanel extends VBox {
     private App app;
     private ImageView imagePreview;
+    private RadioButton handwritingRadio;
     private RadioButton spiralRadio;
     private RadioButton waveRadio;
     private ToggleGroup radioGroup;
@@ -71,12 +72,15 @@ public class RunPanel extends VBox {
                 "-fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 8, 0, 0, 3);");
 
         radioGroup = new ToggleGroup();
+        handwritingRadio = new RadioButton("Handwriting");
+        handwritingRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
         spiralRadio = new RadioButton("Spiral Test");
         spiralRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
         waveRadio = new RadioButton("Wave Test");
         waveRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
         spiralRadio.setToggleGroup(radioGroup);
         waveRadio.setToggleGroup(radioGroup);
+        handwritingRadio.setToggleGroup(radioGroup);
         spiralRadio.setSelected(true);
 
         String buttonStyle = "-fx-pref-height: 42; -fx-font-size: 14px; -fx-font-weight: bold; " +
@@ -135,7 +139,7 @@ public class RunPanel extends VBox {
         radioContainer.setAlignment(Pos.CENTER);
         radioContainer.setPadding(new javafx.geometry.Insets(20));
         radioContainer.setStyle(
-                "-fx-background-color: rgba(60, 60, 60, 0.8);" +
+
                         "-fx-background-radius: 10;" +
                         "-fx-border-radius: 10;" +
                         "-fx-border-color: linear-gradient(to right, #43cea2, #185a9d);" +
@@ -147,7 +151,7 @@ public class RunPanel extends VBox {
 
         HBox radioBox = new HBox(30);
         radioBox.setAlignment(Pos.CENTER);
-        radioBox.getChildren().addAll(spiralRadio, waveRadio);
+        radioBox.getChildren().addAll(handwritingRadio, spiralRadio, waveRadio);
 
         radioContainer.getChildren().addAll(testTypeLabel, radioBox);
 

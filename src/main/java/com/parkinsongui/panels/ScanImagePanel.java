@@ -115,7 +115,7 @@ public class ScanImagePanel extends ScrollPane {
         card.setPrefHeight(400);
         card.setPadding(new Insets(30));
         card.setStyle(String.format("""
-            -fx-background-color: rgba(42, 45, 49, 0.9);
+            -fx-background-color: rgba(20, 20, 20, 1);
             -fx-background-radius: 18;
             -fx-border-radius: 18;
             -fx-border-width: 2;
