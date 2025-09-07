@@ -7,6 +7,7 @@ module com.parkinsongui {
     requires atlantafx.base;
     requires jdk.httpserver;
     requires com.google.zxing;
+    requires javax.jmdns;
 
     exports com.parkinsongui;
 }
