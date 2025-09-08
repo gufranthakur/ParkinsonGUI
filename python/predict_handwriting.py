@@ -59,7 +59,7 @@ if __name__ == "__main__":
         print("Usage: python predict.py <image_path>")
         sys.exit(1)
     
-    model_path = "../models/best_model.h5"
+    model_path = "models/best_model.h5"
     image_path = sys.argv[1]
     
     if not os.path.exists(image_path):

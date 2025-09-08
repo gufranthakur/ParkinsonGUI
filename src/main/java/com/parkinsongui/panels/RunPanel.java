@@ -2,7 +2,6 @@ package com.parkinsongui.panels;
 
 import com.parkinsongui.App;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -18,8 +17,7 @@ public class RunPanel extends VBox {
     private App app;
     private ImageView imagePreview;
     private RadioButton handwritingRadio;
-    private RadioButton spiralRadio;
-    private RadioButton waveRadio;
+    private RadioButton brainscanRadio;
     private ToggleGroup radioGroup;
     private Button executeButton;
     private Button goBackButton;
@@ -72,16 +70,15 @@ public class RunPanel extends VBox {
                 "-fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 8, 0, 0, 3);");
 
         radioGroup = new ToggleGroup();
-        handwritingRadio = new RadioButton("Handwriting");
+
+        handwritingRadio = new RadioButton("Handwriting Test");
         handwritingRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
-        spiralRadio = new RadioButton("Spiral Test");
-        spiralRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
-        waveRadio = new RadioButton("Wave Test");
-        waveRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
-        spiralRadio.setToggleGroup(radioGroup);
-        waveRadio.setToggleGroup(radioGroup);
+        brainscanRadio = new RadioButton("Brain Scan");
+        brainscanRadio.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e9ecef;");
         handwritingRadio.setToggleGroup(radioGroup);
-        spiralRadio.setSelected(true);
+        brainscanRadio.setToggleGroup(radioGroup);
+
+        handwritingRadio.setSelected(true);
 
         String buttonStyle = "-fx-pref-height: 42; -fx-font-size: 14px; -fx-font-weight: bold; " +
                 "-fx-border-radius: 8; -fx-background-radius: 8; " +
@@ -151,7 +148,7 @@ public class RunPanel extends VBox {
 
         HBox radioBox = new HBox(30);
         radioBox.setAlignment(Pos.CENTER);
-        radioBox.getChildren().addAll(handwritingRadio, spiralRadio, waveRadio);
+        radioBox.getChildren().addAll(handwritingRadio, brainscanRadio);
 
         radioContainer.getChildren().addAll(testTypeLabel, radioBox);
 
@@ -193,7 +190,7 @@ public class RunPanel extends VBox {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                String testType = spiralRadio.isSelected() ? "s" : "w";
+                String testType = handwritingRadio.isSelected() ? "s" : "w";
 
                 ProcessBuilder pb = new ProcessBuilder(
                         "venv/bin/python",
