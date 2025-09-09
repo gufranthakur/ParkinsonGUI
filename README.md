@@ -1,4 +1,4 @@
-# Parkinson GUI (Graphical User Interface) for the Parkinson Disease prediction project
+# Parkinson GUI
 
 <img width="1913" height="1046" alt="Screenshot from 2025-09-06 12-06-28" src="https://github.com/user-attachments/assets/b3f21808-65ea-4e90-88ab-aecd04d69289" />
 
