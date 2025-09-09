@@ -19,11 +19,22 @@ The python scripts for this project will be in the ``` python ``` folder while t
 
 ## To run this application on your machine 
 
+**Downloading the source code**
+1. Download the .zip from the ``` <Code> ``` dropdown at the top of this repo
+2. Exctract the .zip folder
+3. Navigate to project Directory :- ``` cd ParkinsonGUI ```
+
+**First we setup the python virtual environment**
+1. Navigate to python directory :- ``` cd python ```
+2. Create the venv with command :- ```python -m venv venv```
+3. Activate the venv :- ```venv\Scripts\activate```
+4. Install libaries :- ``` pip install -r requirements.txt```
+
+**Running it with IntelliJ IDEA**
 1. Install IntelliJ IDEA (Community Edition)
-2. Copy the github repo link ``` https://github.com/gufranthakur/ParkinsonGUI.git ```
-3. Click on "Clone Repo" and paste the link
+2. Open the ``` ParkinsonGUI ``` folder with IntelliJ IDEA
 4. Navigate to the main ``` App.java``` main file (src/main/java/com/parkinsongui)
-5. If Java is not installed, you will get a yellow promot "Project JDK not defined". Click on "Setup SDK" and install Java v21 (Any distribution works)
+5. If Java is not installed, you will get a yellow prompt "Project JDK not defined". Click on "Setup SDK" and install Java v21 (Any distribution works)
 6. Click on the gradle icon on the right toolbar (an elephant icon)
 7. ParkinsonGUI > Tasks > application > run
 
