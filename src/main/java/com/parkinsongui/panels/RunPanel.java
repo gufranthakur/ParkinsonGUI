@@ -24,10 +24,13 @@ public class RunPanel extends VBox {
     private ProgressBar loadingBar;
     private String selectedImagePath;
 
-    private int parkinsonProbability;
-    private int modelAccuracy;
-    private int inferenceTime;
-    private String fullOutput;
+    private String result;
+    private float confidenceScore;
+    private double probabilityScore;
+    private float inferenceTime;
+    private float modelSize;
+    private int modelLayers;
+    private int totalParameters;
 
     public RunPanel(App app) {
         this.app = app;
@@ -195,8 +198,7 @@ public class RunPanel extends VBox {
                 ProcessBuilder pb = new ProcessBuilder(
                         "venv/bin/python",
                         "detection.py",
-                        selectedImagePath,
-                        testType
+                        selectedImagePath
                 );
 
                 pb.directory(new File("python"));
@@ -204,15 +206,15 @@ public class RunPanel extends VBox {
                 Process process = pb.start();
 
                 StringBuilder outputBuilder = new StringBuilder();
-                String[] firstThreeLines = new String[3];
+                String[] lines = new String[7];
                 int lineCount = 0;
 
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(process.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        if (lineCount < 3) {
-                            firstThreeLines[lineCount] = line;
+                        if (lineCount < 7) {
+                            lines[lineCount] = line;
                             lineCount++;
                         } else {
                             outputBuilder.append(line).append("\n");
@@ -222,10 +224,13 @@ public class RunPanel extends VBox {
                 }
 
                 if (lineCount >= 3) {
-                    parkinsonProbability = Integer.parseInt(firstThreeLines[0]);
-                    modelAccuracy = Integer.parseInt(firstThreeLines[1]);
-                    inferenceTime = Integer.parseInt(firstThreeLines[2]);
-                    fullOutput = outputBuilder.toString();
+                    result = lines[0];
+                    confidenceScore = Float.parseFloat(lines[1]);
+                    probabilityScore = Double.parseDouble(lines[2]);
+                    inferenceTime = Float.parseFloat(lines[3]);
+                    modelSize = Float.parseFloat(lines[4]);
+                    modelLayers = Integer.parseInt(lines[5]);
+                    totalParameters = Integer.parseInt(lines[6]);
                 }
 
                 process.waitFor();
@@ -237,7 +242,16 @@ public class RunPanel extends VBox {
                 loadingBar.setVisible(false);
                 executeButton.setDisable(false);
                 goBackButton.setDisable(false);
-                app.showResultPanel(parkinsonProbability, modelAccuracy, inferenceTime, fullOutput);
+                app.showResultPanel(result, confidenceScore, probabilityScore, inferenceTime, modelSize, modelLayers, totalParameters);
+
+                System.out.println("----------------");
+                System.out.println(result);
+                System.out.println(confidenceScore);
+                System.out.println(probabilityScore);
+                System.out.println(inferenceTime);
+                System.out.println(modelSize);
+                System.out.println(modelLayers);
+                System.out.println(totalParameters);
             }
 
             @Override
@@ -245,6 +259,8 @@ public class RunPanel extends VBox {
                 loadingBar.setVisible(false);
                 executeButton.setDisable(false);
                 goBackButton.setDisable(false);
+
+                System.out.println("Fatal failure");
             }
         };
 

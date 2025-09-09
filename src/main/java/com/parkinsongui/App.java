@@ -64,19 +64,14 @@ public class App extends Application {
         }
         runPanel.setSelectedImage(imagePath);
 
-        primaryStage.getScene().setRoot(runPanel);
-        primaryStage.setTitle("Run Analysis - Parkinson's Detection");
+        rootPane.setCenter(runPanel);
     }
 
     // In your App.java, update the showResultPanel method:
-    public void showResultPanel(int parkinsonProbability, int modelAccuracy, int inferenceTime, String fullOutput) {
-        if (resultPanel == null) {
-            resultPanel = new ResultPanel(this);
-        }
-        resultPanel.updateResults(parkinsonProbability, modelAccuracy, inferenceTime, fullOutput);
-
-        primaryStage.getScene().setRoot(resultPanel);
-        primaryStage.setTitle("Analysis Results - Parkinson's Detection");
+    public void showResultPanel(String result, float confidenceScore, double probabilityScore,
+            float inferenceTime, float modelSize, int modelLayers, int totalParameters) {
+        rootPane.setCenter(resultPanel);
+        resultPanel.displayResults(result, confidenceScore, probabilityScore, inferenceTime, modelSize, modelLayers, totalParameters);
     }
 
     public Image getCapturedImage() {
