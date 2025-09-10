@@ -28,7 +28,11 @@ The python scripts for this project will be in the ``` python ``` folder while t
 1. Navigate to python directory :- ``` cd python ```
 2. Create the venv with command :- ```python -m venv venv```
 3. Activate the venv :- ```venv\Scripts\activate```
-4. Install libaries :- ``` pip install -r requirements.txt```
+4. Install libaries :- ``` pip install tensorflow```
+
+**To run it on your machine**
+1. Navigate back ``` cd .. ```
+2. Run the application ``` gradlew run ```
 
 **Running it with IntelliJ IDEA**
 1. Install IntelliJ IDEA (Community Edition)
