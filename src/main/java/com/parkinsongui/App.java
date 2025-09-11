@@ -17,6 +17,8 @@ public class App extends Application {
     private RunPanel runPanel;
     private ResultPanel resultPanel;
 
+    //Tensorflow
+
     public static final String IMAGE_STORAGE_PATH = "captured_images/";
     private Image capturedImage;
 
